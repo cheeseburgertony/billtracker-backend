@@ -51,6 +51,11 @@ module.exports = appInfo => {
     agent: false,
   };
 
+  // 配置自定义加密字符串
+  config.jwt = {
+    secret: 'tony', // secret加密字符串，将在后续用于结合用户信息生成一串token,secret是放在服务端代码中
+  };
+
   return {
     ...config,
     ...userConfig,

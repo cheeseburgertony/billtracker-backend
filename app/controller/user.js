@@ -4,6 +4,7 @@ const Controller = require('egg').Controller;
 const defaultAvatar = 'https://pic2.zhimg.com/80/v2-b028f76a018388009e969bea8101687d_1440w.webp';
 
 class UserController extends Controller {
+  // 注册
   async register() {
     const { ctx } = this;
     const { username, password } = ctx.request.body; // 获取注册所需要的参数
@@ -35,7 +36,7 @@ class UserController extends Controller {
       password,
       signature: '世界和平',
       avatar: defaultAvatar,
-      ctime: new Date().getTime(),
+      ctime: Date.now(),
     });
     if (result) {
       ctx.body = {
@@ -50,6 +51,64 @@ class UserController extends Controller {
         data: null,
       };
     }
+  }
+
+  // 登录
+  async login() {
+    // app为全局属性，相当于所有的插件方法都植入到了app对象
+    const { ctx, app } = this;
+    const { username, password } = ctx.request.body;
+    // 根据用户名在数据库中查找相对于的id然后进行操作
+    const userInfo = await ctx.service.user.getUserByName(username);
+    // 不存在该用户
+    if (!userInfo || !userInfo.id) {
+      ctx.body = {
+        code: 500,
+        msg: '账号不存在',
+        data: null,
+      };
+      return;
+    }
+    // 存在用户,判断密码是否正确
+    if (userInfo && userInfo.id && password !== userInfo.password) {
+      ctx.body = {
+        code: 500,
+        mgs: '账号密码错误',
+        data: null,
+      };
+      return;
+    }
+
+    // 生成token加密
+    const token = app.jwt.sign({
+      id: userInfo.id,
+      username: userInfo.username,
+      exp: Math.floor(Date.now() / 1000 + (24 * 60 * 60)), // 有效期为24个小时
+    }, app.config.jwt.secret);
+
+    ctx.body = {
+      code: 200,
+      msg: '登录成功',
+      data: {
+        token,
+      },
+    };
+  }
+
+  // 验证token解析
+  async test() {
+    const { ctx, app } = this;
+    // 通过token解析，拿到user_id
+    const token = await ctx.request.header.authorization; // 请求头获取 authorization 属性，值为 token
+    // 通过app.jwt.verify(token + 加密字符串)解析出token的值
+    const decode = app.jwt.verify(token, app.config.jwt.secret);
+    ctx.body = {
+      code: 200,
+      msg: '解析成功',
+      data: {
+        ...decode,
+      },
+    };
   }
 }
 
