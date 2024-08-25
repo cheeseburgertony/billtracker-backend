@@ -102,6 +102,7 @@ class UserController extends Controller {
     const token = await ctx.request.header.authorization; // 请求头获取 authorization 属性，值为 token
     // 通过app.jwt.verify(token + 加密字符串)解析出token的值
     const decode = app.jwt.verify(token, app.config.jwt.secret);
+
     ctx.body = {
       code: 200,
       msg: '解析成功',
@@ -109,6 +110,29 @@ class UserController extends Controller {
         ...decode,
       },
     };
+  }
+
+  // 获取用户信息
+  async getUserInfo() {
+    const { ctx, app } = this;
+    const token = ctx.request.header.authorization;
+    // 解析出token
+    const decode = await app.jwt.verify(token, app.config.jwt.secret);
+    // 通过decode.username获取用户完整信息
+    const userInfo = await ctx.service.user.getUserByName(decode.username);
+
+    // 除了密码和创建时间其他都返回
+    ctx.body = {
+      code: 200,
+      msg: '请求成功',
+      data: {
+        id: userInfo.id,
+        username: userInfo.username,
+        signature: userInfo.signature || '',
+        avatar: userInfo.avatar || defaultAvatar,
+      },
+    };
+
   }
 }
 
