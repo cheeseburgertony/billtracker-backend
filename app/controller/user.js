@@ -132,6 +132,41 @@ class UserController extends Controller {
         avatar: userInfo.avatar || defaultAvatar,
       },
     };
+  }
+
+  // 修改用户信息
+  async editUserInfo() {
+    const { ctx, app } = this;
+    // 在请求体中获取签名字段signature
+    const { signature = '' } = ctx.request.body;
+    try {
+      const token = ctx.request.header.authorization;
+      // 解析token
+      const decode = await app.jwt.verify(token, app.config.jwt.secret);
+      if (!decode) return;
+      // 取出信息id
+      const user_id = decode.id;
+      // 通过username获取userInfo完整信息
+      const userInfo = await ctx.service.user.getUserByName(decode.username);
+      // 通过service层的editUserInfo修改信息
+      await ctx.service.user.editUserInfo({
+        ...userInfo,
+        signature,
+      });
+
+      ctx.body = {
+        code: 200,
+        msg: '请求成功',
+        data: {
+          id: user_id,
+          username: userInfo.username,
+          signature,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
 
   }
 }

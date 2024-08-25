@@ -24,6 +24,21 @@ class UserService extends Service {
       return null;
     }
   }
+
+  // 修改用户信息
+  async editUserInfo(params) {
+    const { app } = this;
+    try {
+      // 通过app.mysql.update方法指定user并且进行修改,要修改的参数体，直接通过...扩展操作符展开
+      // 筛选出id等于params.id的用户
+      const result = await app.mysql.update('user', { ...params }, { id: params.id });
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+
+  }
 }
 
 module.exports = UserService;
