@@ -19,6 +19,7 @@ module.exports = appInfo => {
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
+    uploadDir: 'app/public/upload',
   };
 
   // 安防策略问题配置
@@ -53,7 +54,19 @@ module.exports = appInfo => {
 
   // 配置自定义加密字符串
   config.jwt = {
-    secret: 'tony', // secret加密字符串，将在后续用于结合用户信息生成一串token,secret是放在服务端代码中
+    secret: 'tony', // secret加密字符串,将在后续用于结合用户信息生成一串token,secret是放在服务端代码中
+  };
+
+  // 设置config.multipart的mode属性为file
+  config.multipart = {
+    mode: 'file',
+  };
+
+  // 解决跨域问题
+  config.cors = {
+    origin: '*', // 允许所有跨域访问
+    credentials: true, // 允许Cookie跨域
+    allowMethods: 'GET,POST,PUT,DELETE,PATCH,HEAD', // 允许请求的方式
   };
 
   return {
