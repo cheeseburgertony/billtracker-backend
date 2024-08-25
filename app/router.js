@@ -3,5 +3,7 @@
  */
 module.exports = app => {
   const { router, controller } = app;
-  router.get('/', controller.home.index);
+
+  // 注册
+  router.post('/api/user/register', controller.user.register);
 };

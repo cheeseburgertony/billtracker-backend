@@ -37,9 +37,9 @@ module.exports = appInfo => {
       // host
       host: 'localhost',
       // 端口号
-      port: 3306,
+      port: '3306',
       // 用户名
-      username: 'root',
+      user: 'root',
       // 密码
       password: '1234',
       // 数据库名
