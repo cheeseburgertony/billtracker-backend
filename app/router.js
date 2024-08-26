@@ -19,7 +19,9 @@ module.exports = app => {
   // 修改用户信息
   router.post('/api/user/edit_userinfo', _jwt, controller.user.editUserInfo);
   // 修改用户头像
-  router.post('/api/upload', controller.upload.upload);
+  router.post('/api/upload', _jwt, controller.upload.upload);
+  // 修改用户密码
+  router.post('/api/user/modify_pass', _jwt, controller.user.modifyPass);
 
   // 新增账单
   router.post('/api/bill/add', _jwt, controller.bill.add);
@@ -34,4 +36,7 @@ module.exports = app => {
 
   // 获取图表数据(整合之后的数据)
   router.get('/api/bill/data', _jwt, controller.bill.data);
+
+  // 获取标签列表
+  router.get('/api/type/list', _jwt, controller.type.list);
 };
