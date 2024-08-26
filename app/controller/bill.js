@@ -180,6 +180,51 @@ class BillController extends Controller {
         data: null,
       };
     }
+  }
+
+  // 修改账单
+  async update() {
+    const { ctx, app } = this;
+    // 接收来自body的请求参数 账单id也需要
+    const { id, amount, type_id, type_name, date, pay_type, remark = '' } = ctx.request.body;
+    // 判空处理
+    if (!amount || !type_id || !type_name || !date || !pay_type) {
+      ctx.body = {
+        code: 400,
+        msg: '参数错误',
+        data: null,
+      };
+    }
+
+    try {
+      // 获取token并解析，获取user_id
+      const token = ctx.request.header.authorization;
+      const decode = await app.jwt.verify(token, app.config.jwt.secret);
+      if (!decode) return;
+      const user_id = decode.id;
+      // 根据账单id和user_id修改账单
+      await ctx.service.bill.update({
+        id, // 账单id
+        amount, // 金额
+        type_id, // 消费类型id
+        type_name, // 消费类型名字
+        date, // 日期
+        pay_type, // 消费类型(支出/收入)
+        remark, // 备注
+        user_id, // 用户id
+      });
+      ctx.body = {
+        code: 200,
+        msg: '请求成功',
+        data: null,
+      };
+    } catch (error) {
+      ctx.body = {
+        code: 500,
+        msg: '系统错误',
+        data: null,
+      };
+    }
 
   }
 }

@@ -39,6 +39,20 @@ class BillService extends Service {
       return null;
     }
   }
+
+  // 修改账单
+  async update(params) {
+    const { app } = this;
+    try {
+      // 根据账单id和user_id修改bill表中对应的数据
+      // await app.mysql.update('表名', 更新内容, 查询参数)
+      const result = await app.mysql.update('bill', { ...params }, { id: params.id, user_id: params.user_id });
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }
 
 module.exports = BillService;
