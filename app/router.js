@@ -31,4 +31,7 @@ module.exports = app => {
   router.post('/api/bill/update', _jwt, controller.bill.update);
   // 删除账单
   router.post('/api/bill/delete', _jwt, controller.bill.delete);
+
+  // 获取图表数据(整合之后的数据)
+  router.get('/api/bill/data', _jwt, controller.bill.data);
 };

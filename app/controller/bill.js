@@ -258,7 +258,79 @@ class BillController extends Controller {
         data: null,
       };
     }
+  }
 
+  // 数据图表(数据整合，相同类型的消费一起，以及总金额)
+  // {
+  //   totalData: [
+  //     {
+  //       number: 137.84, // 支出或收入数量
+  //       pay_type: 1, // 支出或消费类型值
+  //       type_id: 1, // 消费类型id
+  //       type_name: "餐饮" // 消费类型名称
+  //     }
+  //   ],
+  //   totalExpense: 3123.54, // 总消费
+  //   totalIncome: 6555.80 // 总收入
+  // }
+  // 根据时间获取数据
+  async data() {
+    const { ctx, app } = this;
+    const { date = '' } = ctx.query;
+    const token = ctx.request.header.authorization;
+    const decode = await app.jwt.verify(token, app.config.jwt.secret);
+    if (!decode) return;
+    const user_id = decode.id;
+
+    try {
+      // 获取账单表中当前用户的所有数据
+      const result = await ctx.service.bill.list(user_id);
+      // 根据时间参数筛选出当前月该用户所有的账单数据
+      const start = moment(date).startOf('month').unix() * 1000; // 月初时间
+      const end = moment(date).endOf('month').unix() * 1000; // 月末时间
+      const _data = result.filter(item => Number(item.date) >= start && Number(item.date) <= end);
+      // 通过当前月份数据进行计算
+      // 总支出
+      const totalExpense = _data.reduce((prev, current) => (current.pay_type === 1 ? prev + Number(current.amount) : prev), 0);
+      // 总收入
+      const totalIncome = _data.reduce((prev, current) => ((current.pay_type === 2) ? prev + Number(current.amount) : prev), 0);
+      // 整理收支构成
+      const totalData = _data.reduce((prev, current) => {
+        // 找该类型的账单是否以及存在
+        const index = prev.findIndex(item => item.type_id === current.type_id);
+        // 不存在创建个新的
+        if (index === -1) {
+          prev.push({
+            type_id: current.type_id, // 消费类型id
+            type_name: current.type_name, // 消费类型名称
+            pay_type: current.pay_type, // 支出或消费类型值
+            number: Number(current.amount), // 支出或收入数量
+          });
+        }
+        // 如果已经存在则直接将金额加入到已有的数组中
+        if (index > -1) {
+          prev[index].number += Number(current.amount);
+        }
+        return prev;
+      }, []);
+      totalData.forEach(item => (item.number = Number(Number(item.number).toFixed(2))));
+
+      ctx.body = {
+        code: 200,
+        msg: '请求成功',
+        data: {
+          total_expense: Number(totalExpense).toFixed(2),
+          total_income: Number(totalIncome).toFixed(2),
+          total_data: totalData || [],
+        },
+      };
+    } catch (error) {
+      ctx.body = {
+        code: 500,
+        msg: '系统错误',
+        data: null,
+      };
+    }
   }
 }
 
