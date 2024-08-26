@@ -62,7 +62,7 @@ class BillController extends Controller {
       // 过滤出月份和类型所对应的账单列表
       const _list = list.filter(item => {
         if (type_id !== 'all') {
-          return moment(Number(item.date)).format('YYYY-MM') === date && item.type_id === type_id;
+          return moment(Number(item.date)).format('YYYY-MM') === date && Number(item.type_id) === Number(type_id);
         }
         return moment(Number(item.date)).format('YYYY-MM') === date;
       });
