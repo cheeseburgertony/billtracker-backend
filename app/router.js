@@ -20,4 +20,7 @@ module.exports = app => {
   router.post('/api/user/edit_userinfo', _jwt, controller.user.editUserInfo);
   // 修改用户头像
   router.post('/api/upload', controller.upload.upload);
+
+  // 新增账单
+  router.post('/api/bill/add', _jwt, controller.bill.add);
 };
