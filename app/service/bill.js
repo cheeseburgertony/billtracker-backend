@@ -27,6 +27,18 @@ class BillService extends Service {
       return null;
     }
   }
+
+  // 获取订单详情
+  async detail(id, user_id) {
+    const { app } = this;
+    try {
+      const result = await app.mysql.get('bill', { id, user_id });
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }
 
 module.exports = BillService;
