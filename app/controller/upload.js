@@ -23,7 +23,7 @@ class UploadController extends Controller {
       await mkdirp(dir); // 不在就创建文件目录
       // 图片保存的地址
       uploadDir = path.join(dir, date + path.extname(file.filename)); // 取文件的后缀名和时间戳作为文件名
-      // 写入文件夹
+      // 写入文件中
       fs.writeFileSync(uploadDir, f);
     } finally {
       // 清除临时文件
